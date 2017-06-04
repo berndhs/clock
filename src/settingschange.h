@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SETTINGSCHANGE_H
+#define SETTINGSCHANGE_H
 
 
 /****************************************************************
@@ -21,57 +21,51 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
  ****************************************************************/
+#include <QDialog>
 #include <QString>
-#include <QMainWindow>
-#include <QDateTime>
-#include <QFontMetrics>
-#include <QTimer>
-#include <QEvent>
-#include <QResizeEvent>
-#include "settingschange.h"
 
 namespace Ui {
-  class MainWindow;
+  class SettingsChange;
 }
 
-class MainWindow : public QMainWindow
+class SettingsChange : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit MainWindow(QApplication &app, QWidget *parent = 0);
-  ~MainWindow();
 
-  void connectUi();
-  void updateTime(QString time);
+  enum Result {
+    DontChange = 0,
+    UseDefault= 1,
+    UseNew = 2
+  };
+
+  explicit SettingsChange(QWidget *parent = 0);
+  void setDefault (QString &dFault);
+  void setOldMask (QString &mask);
+  ~SettingsChange();
+
+  QString newMask() { return m_newMask; }
 
 public slots:
 
-  void quit();
-  void changeFormat(bool doAsk=true);
-  void getNewTime();
+  int exec();
 
-  void setMask (QString msk);
+  void useDefault();
+  void okClicked();
+  void cancelClicked();
 
-protected:
+signals:
 
-  bool eventFilter(QObject *obj, QEvent *event);
-
-  void resizeEvent(QEvent * evt);
-
+  void useMask (QString newMask);
 
 private:
-  Ui::MainWindow *ui;
+  Ui::SettingsChange *ui;
 
-  QApplication *m_app;
-
-  QString   m_dateFormat;
-  QString   m_curTime;
-
-  QTimer    *updateTimer;
-  bool      m_wantTimer;
-
-  SettingsChange *m_changer;
+  QString m_defaultMask;
+  QString m_oldMask;
+  QString m_newMask;
+  int     m_resultWanted;
 };
 
-#endif // MAINWINDOW_H
+#endif // SETTINGSCHANGE_H

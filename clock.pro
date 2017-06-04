@@ -1,14 +1,40 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2017-06-03T15:55:40
-#
-#-------------------------------------------------
 
-QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+#/****************************************************************
+# * This file is distributed under the following license:
+# *
+# * Copyright (C) 2017, Bernd Stramm
 
-TARGET = clock
+#This is free software: you can redistribute it and/or modify
+#it under the terms of the GNU Affero General Public License as
+#published by the Free Software Foundation, either version 3 of the
+#License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU Affero General Public License for more details.
+
+#You should have received a copy of the GNU Affero General Public License
+#along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# ****************************************************************/
+
+
+
+QT += gui
+QT += core
+QT += widgets
+CONFIG += c++11
+
+CONFIG += debug_and_release
+
+CONFIG(debug,debug|release)  {
+  TARGET = clockd
+}
+else {
+  TARGET = clock
+}
 TEMPLATE = app
 
 MOC_DIR = moctmp
@@ -26,13 +52,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-
 SOURCES += \
         src/main.cpp\
-        src/mainwindow.cpp
+        src/mainwindow.cpp \
+    src/settingschange.cpp \
+    src/hoverabove.cpp
 
 HEADERS  += \
-        src/mainwindow.h
+        src/mainwindow.h \
+    src/settingschange.h \
+    src/agpl2.h \
+    src/hoverabove.h
 
 FORMS    += \
-        ui/mainwindow.ui
+        ui/mainwindow.ui \
+    ui/settingschange.ui
+
+RESOURCES += \
+    clock.qrc
+
+DISTFILES += \
+    LICENSE.txt \
+    img/agplv3-88x31.png
