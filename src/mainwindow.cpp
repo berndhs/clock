@@ -6,7 +6,11 @@
 #include "settingschange.h"
 #include <QInputDialog>
 #include <QIcon>
+#include <QSize>
+#include <QObject>
+#include <math.h>
 #include <iostream>
+#include <unistd.h>
 
 
 /****************************************************************
@@ -32,26 +36,52 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow),
   m_app(&app),
-  m_changer(Q_NULLPTR)
+  m_changer(Q_NULLPTR),
+  m_lic(Q_NULLPTR),
+  m_timeWin(Q_NULLPTR)
 {
-  qDebug() << Q_FUNC_INFO;
+  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->setupUi(this);
   ui->formatButton->setVisible(false);
   ui->quitButton->setVisible(false);
   changeFormat(false);
+  qDebug() << Q_FUNC_INFO << __LINE__;
+  sleep(2);
   m_curTime = QDateTime::currentDateTime().toString(m_dateFormat);
+  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->theTime->setText(m_curTime);
   ui->copyrightButton->setText("");
   ui->copyrightButton->setVisible(false);
+  QSize s = ui->copyrightButton->size();
+  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->copyrightButton->setIcon(QIcon(":/rights.png"));
+  ui->copyrightButton->setIconSize(s);
   updateTimer = new QTimer(this);
   m_changer =  new SettingsChange(this);
+  qDebug() << Q_FUNC_INFO << __LINE__;
+  m_lic = new LicenseWindow(this);
+  qDebug() << Q_FUNC_INFO << __LINE__;
   connectUi();
   m_wantTimer = true;
-  updateTimer->start(500);
+  updateTimer->start(5000);
   QFontMetrics fm = fontMetrics();
   qDebug() << fm.width(m_curTime) << "x" << fm.height();
   installEventFilter(this);
+  qDebug() << Q_FUNC_INFO << __LINE__;
+  m_timeWin = new QQuickView ();
+  m_timeWin->setWidth(300);
+  m_timeWin->setHeight(167);
+  m_timeWin->show();
+  int timeX = x() + 300;
+  int timeY = y() ;
+  m_timeWin->setPosition(timeX,timeY);
+  m_timeWin->setSource(QUrl("qrc:/TimeWin.qml"));
+  qDebug() << Q_FUNC_INFO << __LINE__;
+  qDebug() << Q_FUNC_INFO << " look for qml box";
+  QObject * box = m_timeWin->findChild<QObject*>("TheBigBox");
+  qDebug() << "\n\t box is at " << box;
+  QObject * date = m_timeWin->findChild<QObject*>("TheDateText");
+  qDebug() << "\n't date is at " << date;
 }
 
 MainWindow::~MainWindow()
@@ -67,6 +97,7 @@ MainWindow::connectUi()
   connect (ui->quitButton,SIGNAL(released()),this,SLOT(quit()));
   connect (ui->formatButton,SIGNAL(released()),this,SLOT(changeFormat()));
   connect (updateTimer,SIGNAL(timeout()),this,SLOT(getNewTime()));
+  connect (ui->copyrightButton,SIGNAL(released()),m_lic,SLOT(doShow()));
   connect (m_changer,SIGNAL(useMask(QString)),this,SLOT(setMask(QString)));
 }
 
@@ -89,7 +120,7 @@ void
 MainWindow::changeFormat(bool doAsk)
 {
   qDebug() << Q_FUNC_INFO << doAsk;
-  QString defaultFormat("ddd yyyy-MM-dd HH:mm:ss t");
+  QString defaultFormat("on ddd\nyyyy-MM-dd\nHH:mm:ss t");
   int changeMask (0);
   QString newMask;
   if (doAsk) {
@@ -110,11 +141,11 @@ MainWindow::changeFormat(bool doAsk)
     m_wantTimer = true;
   }
   m_dateFormat=QString(defaultFormat);
-//  if (changeMask != SettingsChange::DontChange) {
+  //  if (changeMask != SettingsChange::DontChange) {
   if (!newMask.isEmpty()) {
     m_dateFormat = newMask;
   }
-;
+  ;
 }
 
 void
@@ -127,7 +158,7 @@ MainWindow::getNewTime()
   }
   m_curTime = QDateTime::currentDateTime().toString(m_dateFormat);
   updateTime(m_curTime);
-  updateTimer->start(500);
+  updateTimer->start(5000);
 }
 
 void
@@ -160,9 +191,6 @@ MainWindow::eventFilter(QObject *obj, QEvent *event)
     default:
       break;
   }
-  std::cout << Q_FUNC_INFO << std::endl;
-  std::cout << "seeing " << event << " for obj " << obj
-           << " in obj " << this;
   return QObject::eventFilter(obj, event);
 }
 
@@ -173,9 +201,12 @@ void MainWindow::resizeEvent(QEvent *evt)
   QSize sz = revt->size();
   int hi = sz.height();
   int wd = sz.width();
-  ui->theTime->size().setWidth(wd-4);
-  std::cout << "\t" << hi  << "x" << wd << std::endl;
+  ui->theTime->setMinimumHeight(hi/2);
+  ui->theTime->setMaximumHeight(hi/2);
+  ui->theTime->setMinimumWidth(wd-4);
+  ui->theTime->setMaximumWidth(wd-4);
   QFont fnt = ui->theTime->font();
-  fnt.setPixelSize(hi/2);
+  int px = (hi/4 > 2 ? hi/4 : 2);
+  fnt.setPixelSize(px);
   ui->theTime->setFont(fnt);
 }

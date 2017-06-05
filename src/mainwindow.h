@@ -28,7 +28,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QEvent>
 #include <QResizeEvent>
+#include <QWindow>
+#include <QQuickView>
 #include "settingschange.h"
+#include "licensewindow.h"
 
 namespace Ui {
   class MainWindow;
@@ -72,6 +75,10 @@ private:
   bool      m_wantTimer;
 
   SettingsChange *m_changer;
+  LicenseWindow  *m_lic;
+
+  QQuickView * m_timeWin;
+  QQuickItem * m_timeBigBox;
 };
 
 #endif // MAINWINDOW_H

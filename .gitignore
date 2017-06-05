@@ -1,0 +1,10 @@
+*swp
+uitmp
+moctmp
+objtmp
+Makefile*
+clock
+clockd
+*.pro.user
+9debug/
+release/

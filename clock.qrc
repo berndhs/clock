@@ -1,6 +1,7 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
-<qresource>
-  <file alias=rigts.png">img/agplv3-88x31.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file alias="rights.png">img/agplv3-88x31.png</file>
+        <file alias="lic.txt">LICENSE.txt</file>
+        <file alias="TimeWin.qml">ui/TimeWin.qml</file>
+    </qresource>
 </RCC>

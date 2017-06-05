@@ -25,6 +25,7 @@
 QT += gui
 QT += core
 QT += widgets
+QT += quick
 CONFIG += c++11
 
 CONFIG += debug_and_release
@@ -56,17 +57,20 @@ SOURCES += \
         src/main.cpp\
         src/mainwindow.cpp \
     src/settingschange.cpp \
-    src/hoverabove.cpp
+    src/timewin.cpp \
+    src/licensewindow.cpp
 
 HEADERS  += \
         src/mainwindow.h \
     src/settingschange.h \
     src/agpl2.h \
-    src/hoverabove.h
+    src/licensewindow.h \
+    src/timewin.h
 
 FORMS    += \
-        ui/mainwindow.ui \
-    ui/settingschange.ui
+    ui/settingschange.ui \
+    ui/licensewindow.ui \
+    ui/mainwindow.ui
 
 RESOURCES += \
     clock.qrc
