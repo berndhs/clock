@@ -38,6 +38,9 @@ else {
 }
 TEMPLATE = app
 
+target.path = /usr/bin/
+INSTALLS += target
+
 MOC_DIR = moctmp
 OBJECTS_DIR = objtmp
 UI_DIR = uitmp
