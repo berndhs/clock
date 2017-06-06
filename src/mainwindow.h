@@ -62,6 +62,9 @@ public slots:
   void setMask (QString msk);
 
 private:
+
+  void setPixels ();
+
   Ui::MainWindow *ui;
 
   QApplication *m_app;

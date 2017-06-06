@@ -12,6 +12,7 @@
 #include <math.h>
 #include <iostream>
 #include <unistd.h>
+#include "deliberate.h"
 
 
 /****************************************************************
@@ -33,6 +34,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
  ****************************************************************/
+
+using namespace deliberate;
+
 MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow),
@@ -59,12 +63,14 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   QFontMetrics fm = fontMetrics();
   qDebug() << fm.width(m_curTime) << "x" << fm.height();
   m_timeWin = new QQuickView ();
-  m_timeWin->setWidth(300);
-  m_timeWin->setHeight(167);
+  QSize defSize(300,167);
+  QSize sz = Settings().value("size",QVariant(defSize)).toSize();
+
+  m_pixelSize = Settings().value("pix",QVariant(8.0)).toDouble();
+  setPixels();
+  qDebug() << " initial size" << sz;
+  m_timeWin->setBaseSize(sz);
   m_timeWin->show();
-  int timeX = x() + 300;
-  int timeY = y() ;
-  m_timeWin->setPosition(timeX,timeY);
   m_timeWin->setSource(QUrl("qrc:/TimeWin.qml"));
   qDebug() << Q_FUNC_INFO << __LINE__;
   qDebug() << Q_FUNC_INFO << " look for qml box";
@@ -72,8 +78,6 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   m_timeWin->setResizeMode(QQuickView::SizeRootObjectToView);
   connectUi(m_timeBigBox);
   changeFormat(false);
-  m_pixelSize = 12.0;
-  fontSizeUp();
   QTimer::singleShot(3000,this,SLOT(hideMain()));
 }
 
@@ -126,6 +130,11 @@ void
 MainWindow::quit()
 {
   qDebug() << Q_FUNC_INFO;
+  if (m_timeWin) {
+    QSize lastSize = m_timeWin->size();
+    Settings().setValue("size",lastSize);
+    Settings().setValue("pix",m_pixelSize);
+  }
   if (m_app) {
     m_app->quit();
   }
@@ -166,7 +175,6 @@ MainWindow::changeFormat(bool doAsk)
 void
 MainWindow::getNewTime()
 {
-  qDebug() << Q_FUNC_INFO << updateTimer->isActive() << m_wantTimer;
   if (!m_wantTimer) {
     qDebug() << Q_FUNC_INFO << "what are we doing here?";
     return;
@@ -179,17 +187,13 @@ MainWindow::getNewTime()
 void MainWindow::fontSizeUp()
 {
   m_pixelSize += 1.0;
-  if (m_timeBigBox) {
-    m_timeBigBox->setProperty("pixelSize",m_pixelSize);
-  }
+  setPixels();
 }
 
 void MainWindow::fontSizeDown()
 {
   m_pixelSize -= 1.0;
-  if (m_timeBigBox) {
-    m_timeBigBox->setProperty("pixelSize",m_pixelSize);
-  }
+  setPixels();
 }
 
 void
@@ -197,4 +201,12 @@ MainWindow::setMask(QString msk)
 {
   qDebug() << Q_FUNC_INFO << msk;
   m_dateFormat = msk;
+}
+
+void MainWindow::setPixels()
+{
+  if (m_timeBigBox) {
+    m_timeBigBox->setProperty("pixelSize",m_pixelSize);
+  }
+  Settings().setValue("pix",m_pixelSize);
 }
