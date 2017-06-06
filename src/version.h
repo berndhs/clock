@@ -1,8 +1,5 @@
-#include "mainwindow.h"
-#include <QApplication>
-#include "agpl2.h"
-#include "version.h"
-
+#ifndef DENADA_VERSION_H
+#define DENADA_VERSION_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -23,15 +20,30 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
  ****************************************************************/
-int main(int argc, char *argv[])
-{
-  QApplication::setOrganizationName ("BerndStramm");
-  QApplication::setOrganizationDomain ("berndhs.world");
-  QApplication::setApplicationName ("clock");
-  deliberate::ProgramVersion pv ("Clock");
-  QApplication a(argc, argv);
-  MainWindow w(a);
-  w.show();
+#include <QString>
 
-  return a.exec();
+namespace deliberate {
+
+class ProgramVersion {
+
+public:
+
+  ProgramVersion (QString pgmname);
+  
+  static QString Version (); 
+  static QString MyName ();
+  
+  static void ShowVersionWindow ();
+  static void CLIVersion ();
+  
+private:
+
+  static QString VersionNumber;
+  static QString ProgramName;
+  static QString copyright;
+
+};
+
 }
+
+#endif

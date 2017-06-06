@@ -8,6 +8,7 @@
 #include <QIcon>
 #include <QSize>
 #include <QObject>
+#include <QQuickItem>
 #include <math.h>
 #include <iostream>
 #include <unistd.h>
@@ -40,34 +41,23 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   m_lic(Q_NULLPTR),
   m_timeWin(Q_NULLPTR)
 {
-  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->setupUi(this);
   ui->formatButton->setVisible(false);
   ui->quitButton->setVisible(false);
-  changeFormat(false);
-  qDebug() << Q_FUNC_INFO << __LINE__;
-  sleep(2);
   m_curTime = QDateTime::currentDateTime().toString(m_dateFormat);
-  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->theTime->setText(m_curTime);
   ui->copyrightButton->setText("");
   ui->copyrightButton->setVisible(false);
   QSize s = ui->copyrightButton->size();
-  qDebug() << Q_FUNC_INFO << __LINE__;
   ui->copyrightButton->setIcon(QIcon(":/rights.png"));
   ui->copyrightButton->setIconSize(s);
   updateTimer = new QTimer(this);
   m_changer =  new SettingsChange(this);
-  qDebug() << Q_FUNC_INFO << __LINE__;
   m_lic = new LicenseWindow(this);
-  qDebug() << Q_FUNC_INFO << __LINE__;
-  connectUi();
   m_wantTimer = true;
-  updateTimer->start(5000);
+  updateTimer->start(333);
   QFontMetrics fm = fontMetrics();
   qDebug() << fm.width(m_curTime) << "x" << fm.height();
-  installEventFilter(this);
-  qDebug() << Q_FUNC_INFO << __LINE__;
   m_timeWin = new QQuickView ();
   m_timeWin->setWidth(300);
   m_timeWin->setHeight(167);
@@ -78,10 +68,13 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   m_timeWin->setSource(QUrl("qrc:/TimeWin.qml"));
   qDebug() << Q_FUNC_INFO << __LINE__;
   qDebug() << Q_FUNC_INFO << " look for qml box";
-  QObject * box = m_timeWin->findChild<QObject*>("TheBigBox");
-  qDebug() << "\n\t box is at " << box;
-  QObject * date = m_timeWin->findChild<QObject*>("TheDateText");
-  qDebug() << "\n't date is at " << date;
+  m_timeBigBox = m_timeWin->rootObject();
+  m_timeWin->setResizeMode(QQuickView::SizeRootObjectToView);
+  connectUi(m_timeBigBox);
+  changeFormat(false);
+  m_pixelSize = 12.0;
+  fontSizeUp();
+  QTimer::singleShot(3000,this,SLOT(hideMain()));
 }
 
 MainWindow::~MainWindow()
@@ -91,20 +84,42 @@ MainWindow::~MainWindow()
 }
 
 void
-MainWindow::connectUi()
+MainWindow::connectUi(QQuickItem *root)
 {
   qDebug() << Q_FUNC_INFO;
-  connect (ui->quitButton,SIGNAL(released()),this,SLOT(quit()));
-  connect (ui->formatButton,SIGNAL(released()),this,SLOT(changeFormat()));
+  if (root) {
+    connect (root,SIGNAL(quit()),
+             this,SLOT(quit()));
+    connect (root,SIGNAL(changeFormat()),
+             this, SLOT(changeFormat()));
+    connect (root,SIGNAL(showCopyright()),
+             m_lic,SLOT(doShow()));
+    connect (root,SIGNAL(sizeUp()),
+             this, SLOT(fontSizeUp()));
+    connect (root,SIGNAL(sizeDown()),
+             this,SLOT(fontSizeDown()));
+  } else {
+    connect (ui->quitButton,SIGNAL(released()),this,SLOT(quit()));
+    connect (ui->formatButton,SIGNAL(released()),this,SLOT(changeFormat()));
+    connect (ui->copyrightButton,SIGNAL(released()),m_lic,SLOT(doShow()));
+  }
   connect (updateTimer,SIGNAL(timeout()),this,SLOT(getNewTime()));
-  connect (ui->copyrightButton,SIGNAL(released()),m_lic,SLOT(doShow()));
   connect (m_changer,SIGNAL(useMask(QString)),this,SLOT(setMask(QString)));
 }
 
 void
 MainWindow::updateTime(QString time)
 {
-  ui->theTime->setText(time);
+  if (m_timeBigBox) {
+    m_timeBigBox->setProperty("timeValue",time);
+  } else {
+    ui->theTime->setText(time);
+  }
+}
+
+void MainWindow::hideMain()
+{
+  hide();
 }
 
 void
@@ -158,7 +173,23 @@ MainWindow::getNewTime()
   }
   m_curTime = QDateTime::currentDateTime().toString(m_dateFormat);
   updateTime(m_curTime);
-  updateTimer->start(5000);
+  updateTimer->start(333);
+}
+
+void MainWindow::fontSizeUp()
+{
+  m_pixelSize += 1.0;
+  if (m_timeBigBox) {
+    m_timeBigBox->setProperty("pixelSize",m_pixelSize);
+  }
+}
+
+void MainWindow::fontSizeDown()
+{
+  m_pixelSize -= 1.0;
+  if (m_timeBigBox) {
+    m_timeBigBox->setProperty("pixelSize",m_pixelSize);
+  }
 }
 
 void
@@ -166,47 +197,4 @@ MainWindow::setMask(QString msk)
 {
   qDebug() << Q_FUNC_INFO << msk;
   m_dateFormat = msk;
-}
-
-bool
-MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-  QEvent::Type evt = event->type();
-  switch (evt) {
-    case QEvent::HoverEnter:
-      ui->quitButton->setVisible(true);
-      ui->formatButton->setVisible(true);
-      ui->copyrightButton->setVisible(true);
-      return true;
-      break;
-    case QEvent::HoverLeave:
-      ui->quitButton->setVisible(false);
-      ui->formatButton->setVisible(false);
-      ui->copyrightButton->setVisible(false);
-      return true;
-      break;
-    case QEvent::Resize:
-      this->resizeEvent(event);
-      break;
-    default:
-      break;
-  }
-  return QObject::eventFilter(obj, event);
-}
-
-void MainWindow::resizeEvent(QEvent *evt)
-{
-  std::cout << Q_FUNC_INFO << std::endl;
-  QResizeEvent *revt = static_cast<QResizeEvent*>(evt);
-  QSize sz = revt->size();
-  int hi = sz.height();
-  int wd = sz.width();
-  ui->theTime->setMinimumHeight(hi/2);
-  ui->theTime->setMaximumHeight(hi/2);
-  ui->theTime->setMinimumWidth(wd-4);
-  ui->theTime->setMaximumWidth(wd-4);
-  QFont fnt = ui->theTime->font();
-  int px = (hi/4 > 2 ? hi/4 : 2);
-  fnt.setPixelSize(px);
-  ui->theTime->setFont(fnt);
 }

@@ -57,15 +57,17 @@ SOURCES += \
         src/main.cpp\
         src/mainwindow.cpp \
     src/settingschange.cpp \
-    src/timewin.cpp \
-    src/licensewindow.cpp
+    src/licensewindow.cpp \
+    src/version.cpp \
+    src/deliberate.cpp
 
 HEADERS  += \
         src/mainwindow.h \
     src/settingschange.h \
     src/agpl2.h \
     src/licensewindow.h \
-    src/timewin.h
+    src/version.h \
+    src/deliberate.h
 
 FORMS    += \
     ui/settingschange.ui \

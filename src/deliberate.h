@@ -1,8 +1,5 @@
-#include "mainwindow.h"
-#include <QApplication>
-#include "agpl2.h"
-#include "version.h"
-
+#ifndef DELIBERATE_H
+#define DELIBERATE_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -23,15 +20,34 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
  ****************************************************************/
-int main(int argc, char *argv[])
-{
-  QApplication::setOrganizationName ("BerndStramm");
-  QApplication::setOrganizationDomain ("berndhs.world");
-  QApplication::setApplicationName ("clock");
-  deliberate::ProgramVersion pv ("Clock");
-  QApplication a(argc, argv);
-  MainWindow w(a);
-  w.show();
 
-  return a.exec();
+
+#include <qapplication.h>
+#include <stdio.h>
+#include <QTextStream>
+#include <QSettings>
+
+namespace deliberate {
+
+
+QTextStream  & StdOut();
+
+void SetSettings (QSettings & settings);
+
+void InitSettings ();
+
+QSettings & Settings ();
+
+bool IsMaemo ();
+
+bool IsFingerInterface ();
+
+bool IsIp6Address (QString addr);
+bool IsIp4Address (QString addr);
+
+void Rot1 (QByteArray & data, const QByteArray & key);
+void Rot2 (QByteArray & data, const QByteArray & key);
 }
+
+
+#endif

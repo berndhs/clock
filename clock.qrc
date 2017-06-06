@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file alias="rights.png">img/agplv3-88x31.png</file>
+        <file alias="uparrow.png">img/up.png</file>
+        <file alias="downarrow.png">img/down.png</file>
         <file alias="lic.txt">LICENSE.txt</file>
         <file alias="TimeWin.qml">ui/TimeWin.qml</file>
     </qresource>

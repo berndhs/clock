@@ -30,6 +30,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <QResizeEvent>
 #include <QWindow>
 #include <QQuickView>
+#include <QQuickItem>
 #include "settingschange.h"
 #include "licensewindow.h"
 
@@ -45,23 +46,20 @@ public:
   explicit MainWindow(QApplication &app, QWidget *parent = 0);
   ~MainWindow();
 
-  void connectUi();
+  void connectUi(QQuickItem*root);
   void updateTime(QString time);
 
 public slots:
 
+  void hideMain();
   void quit();
   void changeFormat(bool doAsk=true);
   void getNewTime();
 
+  void fontSizeUp();
+  void fontSizeDown();
+
   void setMask (QString msk);
-
-protected:
-
-  bool eventFilter(QObject *obj, QEvent *event);
-
-  void resizeEvent(QEvent * evt);
-
 
 private:
   Ui::MainWindow *ui;
@@ -69,6 +67,7 @@ private:
   QApplication *m_app;
 
   QString   m_dateFormat;
+  qreal     m_pixelSize;
   QString   m_curTime;
 
   QTimer    *updateTimer;
