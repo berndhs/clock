@@ -1,7 +1,10 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <QSettings>
 #include "agpl2.h"
 #include "version.h"
+#include "deliberate.h"
+#include "cmdoptions.h"
 
 
 /****************************************************************
@@ -25,13 +28,51 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************/
 int main(int argc, char *argv[])
 {
+
+  QApplication a (argc, argv);
   QApplication::setOrganizationName ("BerndStramm");
   QApplication::setOrganizationDomain ("berndhs.world");
   QApplication::setApplicationName ("clock");
   deliberate::ProgramVersion pv ("Clock");
-  QApplication a(argc, argv);
+  QApplication::setApplicationVersion (pv.Version());
+  QSettings  settings;
+  deliberate::InitSettings ();
+  deliberate::SetSettings (settings);
+  settings.setValue ("program",pv.MyName());
+
+
+  QStringList  configMessages;
+
+  deliberate::CmdOptions  opts ("denada");
+  opts.AddSoloOption ("debug","D",QObject::tr("show Debug log window"));
+  opts.AddStringOption ("logdebug","L",QObject::tr("write Debug log to file"));
+
   MainWindow w(a);
   w.show();
+  bool optsOk = opts.Parse (argc, argv);
+  if (!optsOk) {
+    opts.Usage ();
+    exit(1);
+  }
+  if (opts.WantHelp ()) {
+    opts.Usage ();
+    exit (0);
+    pv.CLIVersion ();
+    configMessages.append (QString("Built on %1 %2")
+                           .arg (__DATE__).arg(__TIME__));
+    configMessages.append (QObject::tr("Build with Qt %1").arg(QT_VERSION_STR));
+    configMessages.append (QObject::tr("Running with Qt %1").arg(qVersion()));
+    for (int cm=0; cm<configMessages.size(); cm++) {
+      deliberate::StdOut () << configMessages[cm] << endl;
+    }
+    if (opts.WantVersion ()) {
+      exit (0);
+    }
+  }
+  bool showDebug = opts.SeenOpt ("debug");
+  int result;
 
-  return a.exec();
+
+  result = a.exec();
+  return result;
 }

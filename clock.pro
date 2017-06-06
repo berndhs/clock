@@ -59,7 +59,8 @@ SOURCES += \
     src/settingschange.cpp \
     src/licensewindow.cpp \
     src/version.cpp \
-    src/deliberate.cpp
+    src/deliberate.cpp \
+    src/cmdoptions.cpp
 
 HEADERS  += \
         src/mainwindow.h \
@@ -67,7 +68,8 @@ HEADERS  += \
     src/agpl2.h \
     src/licensewindow.h \
     src/version.h \
-    src/deliberate.h
+    src/deliberate.h \
+    src/cmdoptions.h
 
 FORMS    += \
     ui/settingschange.ui \
