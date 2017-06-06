@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     configMessages.append (QObject::tr("Build with Qt %1").arg(QT_VERSION_STR));
     configMessages.append (QObject::tr("Running with Qt %1").arg(qVersion()));
     for (int cm=0; cm<configMessages.size(); cm++) {
-      deliberate::StdOut () << configMessages[cm] << endl;
+      deliberate::myStdOut () << configMessages[cm] << endl;
     }
     if (opts.WantVersion ()) {
       exit (0);

@@ -56,7 +56,7 @@ namespace deliberate {
   
   void ProgramVersion::CLIVersion ()
   {
-    StdOut() << Version() << endl;
+    myStdOut() << Version() << endl;
   }
   
   QString ProgramVersion::MyName()

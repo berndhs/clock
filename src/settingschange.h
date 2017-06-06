@@ -37,7 +37,8 @@ public:
   enum Result {
     DontChange = 0,
     UseDefault= 1,
-    UseNew = 2
+    UseNew = 2,
+    SetInitial
   };
 
   explicit SettingsChange(QWidget *parent = 0);

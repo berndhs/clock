@@ -56,10 +56,6 @@ Rectangle  {
             bigBox.flipButtonVisible(hoovered)
         }
 
-
-
-
-
         Text {
             id: dateText;
             anchors.centerIn: parent;
@@ -80,6 +76,7 @@ Rectangle  {
                 topMargin: 10;
             }
             visible: bigBox.buttonsVisible;
+            opacity: 0.8;
             z: dateText.z+1;
             Button {
                 id: upButton;
@@ -110,6 +107,9 @@ Rectangle  {
         Row {
             spacing: 10;
             id: buttonRow;
+            opacity: 0.8;
+            visible: bigBox.buttonsVisible;
+            z: dateText.z+1;
             anchors {
                 left: leftCol.right;
                 leftMargin: 5;
@@ -120,7 +120,6 @@ Rectangle  {
             Button {
                 id: quitButton;
                 objectName: "quitButton"
-                visible: bigBox.buttonsVisible;
                 z: dateText.z+1;
                 width: 60;
                 height: 20;
@@ -133,8 +132,6 @@ Rectangle  {
             Button {
                 id: formatButton;
                 objectName: "formatButton";
-                visible: bigBox.buttonsVisible;
-                z: dateText.z+1;
                 width: 80; height:20;
                 text: "Format";
                 onReleased: {
@@ -145,7 +142,6 @@ Rectangle  {
             Button {
                 id: copyrightButton;
                 objectName: "copyrightButton";
-                visible: bigBox.buttonsVisible;
                 z: dateText.z+1;
 
                 width: 88; height: 31;

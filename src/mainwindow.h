@@ -69,6 +69,7 @@ private:
 
   QApplication *m_app;
 
+  QString   m_defaultFormat;
   QString   m_dateFormat;
   qreal     m_pixelSize;
   QString   m_curTime;

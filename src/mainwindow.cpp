@@ -41,6 +41,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow),
   m_app(&app),
+  m_defaultFormat("ddd yyyy-MM-dd\nHH:mm:ss t"),
   m_changer(Q_NULLPTR),
   m_lic(Q_NULLPTR),
   m_timeWin(Q_NULLPTR)
@@ -61,36 +62,38 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   m_wantTimer = true;
   updateTimer->start(333);
   QFontMetrics fm = fontMetrics();
-  qDebug() << fm.width(m_curTime) << "x" << fm.height();
+  myStdOut() << fm.width(m_curTime) << "x" << fm.height();
   m_timeWin = new QQuickView ();
   QSize defSize(300,167);
   QSize sz = Settings().value("size",QVariant(defSize)).toSize();
 
   m_pixelSize = Settings().value("pix",QVariant(8.0)).toDouble();
-  setPixels();
-  qDebug() << " initial size" << sz;
+  m_dateFormat = Settings().value("mask",m_defaultFormat).toString();
+  myStdOut() << " initial size" << sz.width()<<"x" << sz.height();
   m_timeWin->setBaseSize(sz);
   m_timeWin->show();
   m_timeWin->setSource(QUrl("qrc:/TimeWin.qml"));
-  qDebug() << Q_FUNC_INFO << __LINE__;
-  qDebug() << Q_FUNC_INFO << " look for qml box";
+  myStdOut() << Q_FUNC_INFO << __LINE__;
+  myStdOut() << Q_FUNC_INFO << " look for qml box";
   m_timeBigBox = m_timeWin->rootObject();
   m_timeWin->setResizeMode(QQuickView::SizeRootObjectToView);
   connectUi(m_timeBigBox);
   changeFormat(false);
-  QTimer::singleShot(3000,this,SLOT(hideMain()));
+  setPixels();
+  m_timeWin->setWidth(sz.width()); m_timeWin->setHeight(sz.height());
+  QTimer::singleShot(500,this,SLOT(hideMain()));
 }
 
 MainWindow::~MainWindow()
 {
-  qDebug() << Q_FUNC_INFO;
+  myStdOut() << Q_FUNC_INFO;
   delete ui;
 }
 
 void
 MainWindow::connectUi(QQuickItem *root)
 {
-  qDebug() << Q_FUNC_INFO;
+  myStdOut() << Q_FUNC_INFO;
   if (root) {
     connect (root,SIGNAL(quit()),
              this,SLOT(quit()));
@@ -129,11 +132,13 @@ void MainWindow::hideMain()
 void
 MainWindow::quit()
 {
-  qDebug() << Q_FUNC_INFO;
+  myStdOut() << Q_FUNC_INFO;
   if (m_timeWin) {
     QSize lastSize = m_timeWin->size();
     Settings().setValue("size",lastSize);
     Settings().setValue("pix",m_pixelSize);
+    Settings().setValue("mask",m_dateFormat);
+    Settings().sync();
   }
   if (m_app) {
     m_app->quit();
@@ -143,31 +148,30 @@ MainWindow::quit()
 void
 MainWindow::changeFormat(bool doAsk)
 {
-  qDebug() << Q_FUNC_INFO << doAsk;
-  QString defaultFormat("on ddd\nyyyy-MM-dd\nHH:mm:ss t");
-  int changeMask (0);
-  QString newMask;
+  myStdOut() << Q_FUNC_INFO << doAsk;
+  int changeMask (SettingsChange::SetInitial);
+  QString newMask(m_defaultFormat);
   if (doAsk) {
     updateTimer->stop();
     m_wantTimer = false;
-    qDebug() << Q_FUNC_INFO << __LINE__ << updateTimer->isActive();
+    myStdOut() << Q_FUNC_INFO << __LINE__ << updateTimer->isActive();
     m_changer->setWindowTitle(tr("Change Settings"));
     m_changer->setModal(true);
     m_changer->setOldMask(m_dateFormat);
-    m_changer->setDefault(defaultFormat);
+    m_changer->setDefault(m_defaultFormat);
     changeMask = m_changer->exec();
-//    newMask = QInputDialog::getText(this,QString("Change Timer Mask"),m_dateFormat);
-    qDebug() << "changeMask is " << changeMask;
+    myStdOut() << "changeMask is " << changeMask;
     if (changeMask != SettingsChange::DontChange) {
       newMask = m_changer->newMask();
     }
     updateTimer->start();
     m_wantTimer = true;
   }
-  m_dateFormat=QString(defaultFormat);
-  //  if (changeMask != SettingsChange::DontChange) {
-  if (!newMask.isEmpty()) {
+  if (doAsk && changeMask != SettingsChange::DontChange
+      && !newMask.isEmpty()) {
     m_dateFormat = newMask;
+    Settings().setValue("mask",m_dateFormat);
+    Settings().sync();
   }
   ;
 }
@@ -176,7 +180,7 @@ void
 MainWindow::getNewTime()
 {
   if (!m_wantTimer) {
-    qDebug() << Q_FUNC_INFO << "what are we doing here?";
+    myStdOut() << Q_FUNC_INFO << "what are we doing here?";
     return;
   }
   m_curTime = QDateTime::currentDateTime().toString(m_dateFormat);
@@ -199,7 +203,7 @@ void MainWindow::fontSizeDown()
 void
 MainWindow::setMask(QString msk)
 {
-  qDebug() << Q_FUNC_INFO << msk;
+  myStdOut() << Q_FUNC_INFO << msk;
   m_dateFormat = msk;
 }
 
