@@ -67,8 +67,6 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   QSize defSize(300,167);
   QSize sz = Settings().value("size",QVariant(defSize)).toSize();
 
-  m_pixelSize = Settings().value("pix",QVariant(8.0)).toDouble();
-  m_dateFormat = Settings().value("mask",m_defaultFormat).toString();
   myStdOut() << " initial size" << sz.width()<<"x" << sz.height();
   m_timeWin->setBaseSize(sz);
   m_timeWin->show();
@@ -77,6 +75,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent) :
   myStdOut() << Q_FUNC_INFO << " look for qml box";
   m_timeBigBox = m_timeWin->rootObject();
   m_timeWin->setResizeMode(QQuickView::SizeRootObjectToView);
+  setConfig();
   connectUi(m_timeBigBox);
   changeFormat(false);
   setPixels();
@@ -105,6 +104,8 @@ MainWindow::connectUi(QQuickItem *root)
              this, SLOT(fontSizeUp()));
     connect (root,SIGNAL(sizeDown()),
              this,SLOT(fontSizeDown()));
+    connect (root,SIGNAL(toggleFrame()),
+             this,SLOT(toggleFrame()));
   } else {
     connect (ui->quitButton,SIGNAL(released()),this,SLOT(quit()));
     connect (ui->formatButton,SIGNAL(released()),this,SLOT(changeFormat()));
@@ -122,6 +123,23 @@ MainWindow::updateTime(QString time)
   } else {
     ui->theTime->setText(time);
   }
+}
+
+void MainWindow::setConfig()
+{
+  m_pixelSize = Settings().value("pix",QVariant(8.0)).toDouble();
+  m_dateFormat = Settings().value("mask",m_defaultFormat).toString();
+  QString backColor = Settings().value("backColor","beige").toString();
+  QString textColor = Settings().value("textColor","brightgreen").toString();
+  if (m_timeBigBox) {
+    m_timeBigBox->setProperty("backColor",backColor);
+    m_timeBigBox->setProperty("textColor",textColor);
+  }
+  Settings().setValue("pix",m_pixelSize);
+  Settings().setValue("mask",m_dateFormat);
+  Settings().setValue("backColor",backColor);
+  Settings().setValue("textColor",textColor);
+  Settings().sync();
 }
 
 void MainWindow::hideMain()
@@ -198,6 +216,22 @@ void MainWindow::fontSizeDown()
 {
   m_pixelSize -= 1.0;
   setPixels();
+}
+
+void MainWindow::toggleFrame()
+{
+  int y = m_timeWin->y();
+  std::cout << Q_FUNC_INFO << m_timeBigBox << std::endl;
+    Qt::WindowFlags w = m_timeWin->flags();;
+    std::cout << " w before ^ is " << w << std::endl;
+    w = w ^ Qt::FramelessWindowHint;
+    std::cout << " w after ^ is " << w << std::endl;
+    m_timeWin->setFlags(w);
+    std::cout << " y was " << y << " now " << m_timeWin->y() << std::endl;
+    if (w & Qt::FramelessWindowHint) {  // we have no frame!
+      m_timeWin->setY(y-28);
+    }
+//    QPoint wp = m_timeWin->pos();
 }
 
 void

@@ -48,6 +48,7 @@ public:
 
   void connectUi(QQuickItem*root);
   void updateTime(QString time);
+  void setConfig();
 
 public slots:
 
@@ -58,6 +59,8 @@ public slots:
 
   void fontSizeUp();
   void fontSizeDown();
+
+  void toggleFrame();
 
   void setMask (QString msk);
 

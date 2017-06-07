@@ -31,10 +31,10 @@ CONFIG += c++11
 CONFIG += debug_and_release
 
 CONFIG(debug,debug|release)  {
-  TARGET = clockd
+  TARGET = berndhsclkd
 }
 else {
-  TARGET = clock
+  TARGET = berndhsclk
 }
 TEMPLATE = app
 
@@ -63,7 +63,8 @@ SOURCES += \
     src/licensewindow.cpp \
     src/version.cpp \
     src/deliberate.cpp \
-    src/cmdoptions.cpp
+    src/cmdoptions.cpp \
+    src/config-edit.cpp
 
 HEADERS  += \
         src/mainwindow.h \
@@ -72,7 +73,8 @@ HEADERS  += \
     src/licensewindow.h \
     src/version.h \
     src/deliberate.h \
-    src/cmdoptions.h
+    src/cmdoptions.h \
+    src/config-edit.h
 
 FORMS    += \
     ui/settingschange.ui \
@@ -84,4 +86,6 @@ RESOURCES += \
 
 DISTFILES += \
     LICENSE.txt \
-    img/agplv3-88x31.png
+    img/agplv3-88x31.png \
+    img/up.png \
+    img/down.img
