@@ -31,10 +31,10 @@ CONFIG += c++11
 CONFIG += debug_and_release
 
 CONFIG(debug,debug|release)  {
-  TARGET = berndhsclkd
+  TARGET = bclkd
 }
 else {
-  TARGET = berndhsclk
+  TARGET = bclk
 }
 TEMPLATE = app
 
